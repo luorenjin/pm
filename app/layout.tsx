@@ -21,6 +21,7 @@ export default function RootLayout({
           <Link href="/materials" className="text-slate-300 hover:text-white text-sm">物料追踪</Link>
           <Link href="/actions" className="text-slate-300 hover:text-white text-sm">任务池</Link>
           <Link href="/specs" className="text-slate-300 hover:text-white text-sm">规格书</Link>
+          <Link href="/risk" className="text-slate-300 hover:text-white text-sm">风险管理</Link>
         </nav>
         <main className="p-4">{children}</main>
       </body>

@@ -52,6 +52,11 @@ function ActionItemsContent() {
   })
   const [formError, setFormError] = useState('')
 
+  const [analyzingId, setAnalyzingId] = useState<string | null>(null)
+  const [analysisResult, setAnalysisResult] = useState('')
+  const [analysisError, setAnalysisError] = useState('')
+  const [showAnalysis, setShowAnalysis] = useState(false)
+
   const load = () => {
     const params = new URLSearchParams()
     if (projectIdFilter) params.set('projectId', projectIdFilter)
@@ -124,6 +129,38 @@ function ActionItemsContent() {
     load()
   }
 
+  const handleAnalyze = async (item: ActionItem) => {
+    setAnalyzingId(item.id)
+    setAnalysisResult('')
+    setAnalysisError('')
+    setShowAnalysis(true)
+    try {
+      const project = projects.find(p => p.id === item.projectId)
+      const res = await fetch('/api/ai/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: item.title,
+          what: item.what,
+          who: item.who,
+          dod: item.dod,
+          dueDate: new Date(item.dueDate).toLocaleDateString('zh-CN'),
+          projectName: project?.name,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setAnalysisError(data.error || 'AI 分析失败')
+      } else {
+        setAnalysisResult(data.analysis)
+      }
+    } catch {
+      setAnalysisError('网络错误，请稍后重试')
+    } finally {
+      setAnalyzingId(null)
+    }
+  }
+
   if (loading) return <div className="text-center p-8 text-slate-500">加载中...</div>
 
   return (
@@ -148,6 +185,39 @@ function ActionItemsContent() {
           </button>
         </div>
       </div>
+
+      {showAnalysis && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-[600px] max-h-[80vh] overflow-y-auto shadow-xl">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-bold text-slate-800">🤖 AI 事项分析</h2>
+              <button onClick={() => setShowAnalysis(false)} aria-label="关闭" className="text-slate-400 hover:text-slate-600 text-xl leading-none">×</button>
+            </div>
+            {analyzingId && (
+              <div className="flex items-center gap-2 py-8 justify-center text-slate-500 text-sm">
+                <span className="animate-spin">⏳</span> AI 正在分析，请稍候...
+              </div>
+            )}
+            {analysisError && (
+              <div className="bg-red-50 border border-red-200 rounded p-3 text-sm text-red-700">
+                <p className="font-medium">⚠️ 分析失败</p>
+                <p className="mt-1">{analysisError}</p>
+                {analysisError.includes('OPENAI_API_KEY') && (
+                  <p className="mt-2 text-xs text-red-500">请在 .env.local 中配置 OPENAI_API_KEY</p>
+                )}
+              </div>
+            )}
+            {analysisResult && (
+              <div className="prose prose-sm max-w-none text-slate-700 text-sm leading-relaxed whitespace-pre-wrap">
+                {analysisResult}
+              </div>
+            )}
+            <div className="flex justify-end mt-4">
+              <button onClick={() => setShowAnalysis(false)} className="px-3 py-1.5 text-sm border border-slate-300 rounded">关闭</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showForm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
@@ -325,6 +395,7 @@ function ActionItemsContent() {
                       ) : (
                         <>
                           <button onClick={() => startEdit(item)} className="text-xs text-slate-500 hover:text-slate-800">编辑</button>
+                          <button onClick={() => handleAnalyze(item)} className="text-xs text-blue-500 hover:text-blue-700">🤖 AI分析</button>
                           <button onClick={() => handleDelete(item.id)} className="text-xs text-red-500 hover:text-red-700">删除</button>
                         </>
                       )}
