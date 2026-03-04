@@ -1,0 +1,10 @@
+{
+  "env": {
+    "NEXT_PUBLIC_DEBUG_MODE": "true"
+  },
+  "build": {
+    "env": {
+      "NEXT_PUBLIC_DEBUG_MODE": "true"
+    }
+  }
+}

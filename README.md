@@ -79,3 +79,27 @@ Project       项目
 
 详细配置请参考 [.github/workflows/README.md](.github/workflows/README.md)
 
+## 调试模式
+
+项目默认启用调试模式，以便在生产环境中更容易定位问题。调试模式会：
+
+- 生成源码映射文件 (source maps)，使浏览器控制台的错误堆栈指向原始代码位置
+- 保留 console 日志输出
+
+### 配置调试模式
+
+调试模式通过环境变量 `NEXT_PUBLIC_DEBUG_MODE` 控制：
+
+- 在 `vercel.json` 中默认设置为 `true`
+- 如需禁用调试模式（减小构建产物体积），可在 Vercel 项目设置中将 `NEXT_PUBLIC_DEBUG_MODE` 设置为 `false`
+
+### 本地测试调试模式
+
+```bash
+# 使用调试模式构建
+NEXT_PUBLIC_DEBUG_MODE=true npm run build
+
+# 不使用调试模式构建（标准生产构建）
+npm run build
+```
+
