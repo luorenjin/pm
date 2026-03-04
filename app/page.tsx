@@ -10,7 +10,7 @@ type Project = {
   description: string
   status: 'red' | 'yellow' | 'green'
   materials: unknown[]
-  actionItems: unknown[]
+  actionItems: { isCompleted: boolean }[]
 }
 
 const statusConfig = {
@@ -151,7 +151,7 @@ export default function DashboardPage() {
                   href={`/actions?projectId=${project.id}`}
                   className="text-xs text-slate-500 hover:text-slate-800"
                 >
-                  ✅ 任务 ({(project.actionItems as {isCompleted: boolean}[]).filter(i => !i.isCompleted).length})
+                  ✅ 任务 ({project.actionItems.filter(i => !i.isCompleted).length})
                 </Link>
               </div>
             </div>
