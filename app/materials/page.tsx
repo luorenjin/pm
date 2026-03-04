@@ -64,10 +64,12 @@ function MaterialsContent() {
   }
 
   const handleStatusChange = async (id: string, status: string) => {
+    const mat = materials.find(m => m.id === id)
+    if (!mat) return
     await fetch(`/api/materials/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...materials.find(m => m.id === id), status }),
+      body: JSON.stringify({ ...mat, status }),
     })
     load()
   }
